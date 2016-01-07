@@ -36,7 +36,7 @@
         background-color: rgba(0,255,255,0.2);
         border: 1px solid #000000;
         position: absolute;
-        bottom:2px;
+        top:2px;
         right:2px;
     }
     #toolbar button {
@@ -75,7 +75,7 @@
         width: 29%;
         height: 49%;
     }
-    /*#toolbar a {
+    #toolbar a {
         position: relative;
         font-size:12px;
         top: 2px;
@@ -87,10 +87,7 @@
     #toolbar a:active {
         color:#ff0000;
     }
-*/
-    #gcount{
-        visibility: hidden;
-    }
+
     </style>
 
     <script src="../../src/Utils.js"></script>
@@ -121,7 +118,7 @@
             <!-- <button type="button" onclick="window.location.reload();">Reload</button> -->
             <!-- <hr> -->
             <!-- <button type="button" onclick="saveGesture();">save</button> -->
-            <!-- <button type="button" onclick="addGesture();">add <span id="gcount"></span></button> -->
+            <button type="button" onclick="addGesture();">add <span id="gcount"></span></button>
             <!-- <button type="button" onclick="removeGesture();">remove</button>
             <button type="button" onclick="testGesture();">test</button> -->
             <!-- <hr> -->
@@ -130,7 +127,7 @@
             <!-- <button type="button" onclick="translateTo();">translate</button>
             <button type="button" onclick="scale();">scale</button>
             <button type="button" onclick="rotate();">rotate</button> -->
-            <a href='#' onClick="translateTo();"><span id="gcount"></span><img src='move.png' border='0' width="25"></a>
+            <a href='#' onClick="translateTo();"><img src='move.png' border='0' width="25"></a>
             <a href='#' onClick="scale();"><img src='scale.png' border='0' width="25"></a>
             <a href='#' onClick="rotate();"><img src='rotate.png' border='0' width="25"></a>
             <a href='#' onClick="removeGesture();"><img src='erase.png' border='0' width="25"></a>
