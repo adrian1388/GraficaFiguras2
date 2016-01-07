@@ -1,7 +1,7 @@
 "use strick";
 
-Config.width = 800;
-Config.height = 600;
+Config.width = window.innerWidth*0.29;
+Config.height = window.innerHeight*0.49;
 
 var dollarOne = new RD.DollarOne({
     threshold: 0.3,
