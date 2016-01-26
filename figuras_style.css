@@ -66,3 +66,8 @@
     #toolbar a:active {
         color:#ff0000;
     }
+
+    .seleccionProtactor {
+        visibility: hidden;
+        position: absolute;
+    }
