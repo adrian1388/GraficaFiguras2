@@ -42,13 +42,13 @@
         //
         function mouseDownEvent(x, y)
         {
-            var miPunto = new Point();
             document.onselectstart = function() { return false; } // disable drag-select
             document.onmousedown = function() { return false; } // disable drag-select
             _isDown = true;
             x -= _rc.x;
             y -= _rc.y - getScrollY();
-            // if (_points.length > 0)
+            if (_points.length > 0)
+                onClickLimpiar();
             //  _g.clearRect(0, 0, _rc.width, _rc.height);
             
             _points.length = 1; // clear
@@ -58,7 +58,7 @@
 
             //document.getElementById('objetoDibujado').value = x + ", " + y;
             //document.getElementById('objetoDibujado').value = "new Point( " + x + ", " + y + ")";
-            objetoDibujado.length = 1;
+            objetoDibujado.length = 0;
             objetoDibujado[0] = new Point(x,y);
         }
         function mouseMoveEvent(x, y)
@@ -91,7 +91,7 @@
                 if (_points.length >= 10)
                 {
                     var result = _r.Recognize(_points, document.getElementById('useProtractor').checked);
-                    if (result.Score > 4.0){
+                    if (result.Score > 0.0){
                         drawText("Result: " + result.Name + " (" + round(result.Score,2) + ").");
                         //drawText("Result: " + result.Name);
                         if (result.Name == "circle") {
@@ -254,7 +254,7 @@ var camera, splineCamera;
 var renderer;
 var Top, Group;
 var shininess = 50, specular = 0x333333, bumpScale = 1, shading = THREE.SmoothShading;
-//var controls;
+var controls;
 
 
 
@@ -263,7 +263,7 @@ animate();
 
 function init(){
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(90, (window.innerWidth*0.70) / (window.innerHeight*0.99), 1, 1000); // PerspectiveCamera(fov, aspect, near, far)
+    camera = new THREE.PerspectiveCamera(50, (window.innerWidth*0.70) / (window.innerHeight*0.99), 1, 10000); // PerspectiveCamera(fov, aspect, near, far)
     scene.add( camera );
     camera.position.set(0, 0, 100);
 
@@ -280,8 +280,13 @@ function init(){
     window.addEventListener('resize', onWindowResize, false);
 
     // Add Orbit controls
-    //controls = new THREE.OrbitControls(camera, renderer.domElement);
-    //controls.target = new THREE.Vector3(0, 0, 0);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target = new THREE.Vector3(0, 0, 0);
+	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	scene.add(skyBox);
+	//scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
 
     /* --------------------------------------------------------------------*/
 
@@ -316,66 +321,73 @@ function addElements(){
 
     containerOpciones = document.createElement('div');
     containerOpciones.id = 'containerOpciones';
-    document.getElementById("opciones").appendChild(containerOpciones);
+    var opciones = document.getElementById("opciones");
+    while (opciones.hasChildNodes()) {
+        opciones.removeChild(opciones.firstChild);
+    }
+    opciones.appendChild(containerOpciones);
     
     if (b_circulo){
-        dibujarEsfera();
 
         b_circulo = false;
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xff3300, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
+        
         var info = document.createElement('img');
-        info.style.margin = '0 auto';
-        info.style.top = '1em';
-        info.style.width = '10em';
-        info.style.height = 'auto';
-        info.style.color = 'white';
-        info.src = 'esfera.png';
+        var source = 'esfera.png';
+        addImgOpciones(info,source);
         containerOpciones = document.getElementById('containerOpciones');
-        document.getElementById("opciones").replaceChild(info,containerOpciones);
+        opciones.replaceChild(info,containerOpciones);
+        
+        info = document.createElement('img');
+        source = 'piramide_cilindrica.png';
+        addImgOpciones(info,source);
+        opciones.appendChild(info);
+        
+        info = document.createElement('img');
+        source = 'cilindro.png';
+        addImgOpciones(info,source);
+        opciones.appendChild(info);
+        
+        info = document.createElement('img');
+        source = 'torus.png';
+        addImgOpciones(info,source);
+        opciones.appendChild(info);
     }
     if (b_triangulo){
-        dibujarPiramide();
-
         b_triangulo = false;
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x33ff33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
-        info.style.margin = '0 auto';
-        info.style.top = '1em';
-        info.style.width = '10em';
-        info.style.height = 'auto';
-        info.style.color = 'white';
-        info.src = 'piramide.png';
+        var source = 'piramide.png';
+        addImgOpciones(info,source);
         containerOpciones = document.getElementById('containerOpciones');
         document.getElementById("opciones").replaceChild(info,containerOpciones);
     }
     if (b_rectangulo){
-        dibujarCubo();
-
         b_rectangulo = false;
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xbbbb33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
-        info.style.margin = '0 auto';
-        info.style.top = '1em';
-        info.style.width = '8em';
-        info.style.height = 'auto';
-        info.style.color = 'white';
-        info.src = 'cubo.png';
+        var source = 'cubo.png';
+        addImgOpciones(info,source);
         containerOpciones = document.getElementById('containerOpciones');
         document.getElementById("opciones").replaceChild(info,containerOpciones);
+        
+        info = document.createElement('img');
+        source = 'octaedro.png';
+        addImgOpciones(info,source);
+        opciones.appendChild(info);
     }
 
-
-    //onClickLimpiar();
 
 }
 
 
 function dibujarEsfera(){
-    material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xff3300, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
     sphere = new THREE.Mesh(new THREE.SphereGeometry( 17, 32, 32), material);
     sphere.position.set(-25,34,-20);
     scene.add(sphere);
 }
 
 function dibujarPiramide(){
-    material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x33ff33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
     piramide = new THREE.Mesh(new THREE.TetrahedronGeometry(25,0),material);
     piramide.rotation.z = Math.PI/180 * 45;
     piramide.rotation.x = Math.PI/180 * -35;
@@ -383,19 +395,84 @@ function dibujarPiramide(){
     scene.add(piramide);
 }
 
+function dibujarPiramideCilindrica(){
+    
+    var piramideCilindrica = new THREE.Mesh( new THREE.CylinderGeometry( 0, 10, 30, 50 ), material );
+    scene.add( piramideCilindrica );
+}
 
 function dibujarCubo(){
-    material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xbbbb33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
     cube = new THREE.Mesh(new THREE.BoxGeometry(25,25,25),material);
     cube.position.set(30,28,-25);
     scene.add(cube);
+}
+
+function dibujarOctaedro(){
+    
+    var geometry = new THREE.OctahedronGeometry( 40, 0 );
+    var octaedro = new THREE.Mesh( geometry, material );
+    scene.add( octaedro );
+}
+
+function dibujarCilindro(){
+    
+    var geometry = new THREE.CylinderGeometry( 10, 10, 30, 50 );
+    var cylinder = new THREE.Mesh( geometry, material );
+    scene.add( cylinder );
+}
+
+function dibujarTorus() {
+    	var darkMaterial = new THREE.MeshBasicMaterial( { color: 0xffffcc } );
+	var wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ); 
+	var multiMaterial = [ darkMaterial, wireframeMaterial ]; 
+    	var torus = THREE.SceneUtils.createMultiMaterialObject( 
+	    // radius of entire torus, diameter of tube (less than total radius), 
+		// sides per cylinder segment, cylinders around torus ("sides")
+		new THREE.TorusGeometry( 30, 20, 16, 40 ),
+		multiMaterial );
+	torus.position.set(10, 10, -50);
+	scene.add( torus );
+}
+
+function addImgOpciones(nodo,file) {
+    var nombreFile = file.substring(0,file.length-4);
+    nodo.style.margin = '0 auto';
+    nodo.style.top = '1em';
+    nodo.style.width = '5em';
+    nodo.style.height = 'auto';
+    nodo.style.color = 'white';
+    nodo.src = file;
+    nodo.alt = nombreFile;
+    nodo.onclick = function (){
+        if (nombreFile == 'esfera'){
+            dibujarEsfera();
+        }
+        if (nombreFile == 'piramide_cilindrica'){
+            dibujarPiramideCilindrica();
+        }
+        if (nombreFile == 'cubo'){
+            dibujarCubo();
+        }
+        if (nombreFile == 'piramide'){
+            dibujarPiramide();
+        }
+        if (nombreFile == 'octaedro'){
+            dibujarOctaedro();
+        }
+        if (nombreFile == 'cilindro'){
+            dibujarCilindro();
+        }
+        if (nombreFile == 'torus'){
+            dibujarTorus();
+        }
+    };
 }
 
 function addLights(){
     
     // Setup the point lighting ion the middle of the roonm
     var pointLight = new THREE.PointLight(0xffffff, 1, 150);
-    pointLight.position.set(0, 70, 0);
+    pointLight.position.set(0, 70, 70);
     scene.add(pointLight);
     //scene.add(new THREE.PointLightHelper(bluePoint, 3));
 
@@ -439,7 +516,7 @@ function animate() {
 
 function render() {
    renderCam();
-   //controls.update();
+   controls.update();
 }
 
 
