@@ -91,7 +91,7 @@
                 if (_points.length >= 10)
                 {
                     var result = _r.Recognize(_points, document.getElementById('useProtractor').checked);
-                    if (result.Score > 0.0){
+                    if (result.Score > 1.0){
                         drawText("Result: " + result.Name + " (" + round(result.Score,2) + ").");
                         //drawText("Result: " + result.Name);
                         if (result.Name == "circle") {
@@ -132,7 +132,7 @@
                             }
                         
                         } 
-                        objetoDibujado.length = 0;
+                        objetoDibujado.length = 1;
 
                     }
                     else{
