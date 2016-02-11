@@ -1,13 +1,16 @@
-//
+        //
         // Startup
         //
         var _isDown, _points, _r, _g, _rc;
         var b_circulo = false;
         var b_triangulo = false;
         var b_rectangulo = false;
+        var rotar = false;
         var objetoDibujado;
+        var lista = new Array();
         var circulo,triangulo,cubo,brazoDer,piernaIzq,piernaDer;
         var i = 0;
+        var clock = new THREE.Clock();
         
         function getCanvasRect(canvas)
         {
@@ -44,10 +47,12 @@
         {
             document.onselectstart = function() { return false; } // disable drag-select
             document.onmousedown = function() { return false; } // disable drag-select
+            controls.enabled = false; // disable controls
+
             _isDown = true;
             x -= _rc.x;
             y -= _rc.y - getScrollY();
-            if (_points.length > 0)
+            if (_points.length > 0 && rotar)
                 onClickLimpiar();
             //  _g.clearRect(0, 0, _rc.width, _rc.height);
             
@@ -58,7 +63,7 @@
 
             //document.getElementById('objetoDibujado').value = x + ", " + y;
             //document.getElementById('objetoDibujado').value = "new Point( " + x + ", " + y + ")";
-            objetoDibujado.length = 0;
+            objetoDibujado.length = 1;
             objetoDibujado[0] = new Point(x,y);
         }
         function mouseMoveEvent(x, y)
@@ -69,7 +74,8 @@
                 y -= _rc.y - getScrollY();
                 _points[_points.length] = new Point(x, y); // append
                 coloRear("rgb(0,0,2)",3);
-                drawConnectedPoint(_points.length - 2, _points.length - 1);
+                
+                    drawConnectedPoint(_points.length - 2, _points.length - 1);
                 //document.getElementById('objetoDibujado').value = document.getElementById('objetoDibujado').value + " - " + x + ", " + y;
                 //objetoDibujaPuntos(x,y);
                 objetoDibujado.push(new Point(x,y));
@@ -83,6 +89,8 @@
             
             document.onselectstart = function() { return true; } // enable drag-select
             document.onmousedown = function() { return true; } // enable drag-select
+            controls.enabled = true; // enable controls
+
             if (_isDown)
             {
                 x -= _rc.x;
@@ -95,17 +103,19 @@
                         drawText("Result: " + result.Name + " (" + round(result.Score,2) + ").");
                         //drawText("Result: " + result.Name);
                         if (result.Name == "circle") {
+                            onClickLimpiar();
                             b_circulo = true;
                             addElements();
                             for ( i = 0; i < objetoDibujado.length; i++) {
                                 circulo[i] = objetoDibujado[i];
                             }
                             coloRear("rgb(255,0,0)",3);
-                            for ( i = 0; i < circulo.length - 1; i++) {
+                            for ( i = 0; i < circulo.length; i++) {
                                 drawTrazo(i, i+1);
                             }
                             
                         } else if (result.Name == "triangle") {
+                            onClickLimpiar();
                             b_triangulo = true;
                             addElements();
                             
@@ -113,12 +123,13 @@
                                 triangulo[i] = objetoDibujado[i];
                             }
                             
-                            coloRear("rgb(0,0,255)",3);
-                            for ( i = 0; i < triangulo.length - 1; i++) {
+                            coloRear("rgb(0,150,0)",3);
+                            for ( i = 0; i < triangulo.length; i++) {
                                 drawTrazo(i, i+1);
                             }
                         
                         } else if (result.Name == "rectangle") {
+                            onClickLimpiar();
                             b_rectangulo = true;
                             addElements();
                             
@@ -126,13 +137,72 @@
                                 cubo[i] = objetoDibujado[i];
                             }
                             
-                            coloRear("rgb(190,190,50)",3);
-                            for ( i = 0; i < cubo.length - 1; i++) {
+                            coloRear("rgb(150,150,20)",3);
+                            for ( i = 0; i < cubo.length; i++) {
                                 drawTrazo(i, i+1);
                             }
                         
-                        } 
-                        objetoDibujado.length = 1;
+                        } else if (( b_circulo || b_triangulo || b_rectangulo ) && result.Name == "rotar") {
+                            if (b_circulo){
+                                i=0;
+                                do{
+                                    var dist = Distance( objetoDibujado[0], circulo[i] );
+                                    if( dist < 20 ){
+                                        rotar = true;
+                                    }else{
+                                        rotar = false;
+                                    }
+                                    i++;
+                                }while( rotar == false && i < circulo.length );
+                            }
+                            if (b_triangulo){
+                                i=0;
+                                do{
+                                    var dist = Distance( objetoDibujado[0], triangulo[i] );
+                                    if( dist < 20 ){
+                                        rotar = true;
+                                    }else{
+                                        rotar = false;
+                                    }
+                                    i++;
+                                }while( rotar == false && i < triangulo.length );
+                            }
+                            if (b_rectangulo){
+                                i=0;
+                                do{
+                                    var dist = Distance( objetoDibujado[0], cubo[i] );
+                                    if( dist < 20 ){
+                                        rotar = true;
+                                    }else{
+                                        rotar = false;
+                                    }
+                                    i++;
+                                }while( rotar == false && i < cubo.length );
+                            }
+                            if (rotar) {
+                                coloRear("rgb(100,190,150)",3);
+                                for ( i = 0; i < objetoDibujado.length; i++) {
+                                    drawTrazo(i, i+1);
+                                }
+                            }else{
+                                onClickLimpiar();
+                            }
+                            
+                        
+                        }else if (result.Name == "borrar"){
+                            //borrar objeto de la escena 3js
+                            if (lista.length > 0) {
+                                scene.remove( lista[lista.length-1] );
+                                lista[lista.length-1] = null;
+                                lista.length = lista.length - 1;
+                            }
+                            
+                            onClickLimpiar();
+
+                        }else {
+                            onClickLimpiar();
+                        }
+                        //objetoDibujado.length = 1;
 
                     }
                     else{
@@ -161,7 +231,7 @@
         /* Gráficos: HM-ini */
         function drawTrazo(desde, hasta)
         {
-            
+            //_g.stroke();
             _g.beginPath();
             _g.moveTo(objetoDibujado[desde].X, objetoDibujado[desde].Y);
             _g.lineTo(objetoDibujado[hasta].X, objetoDibujado[hasta].Y);
@@ -178,6 +248,7 @@
             b_circulo = false;
             b_triangulo = false;
             b_rectangulo = false;
+            rotar = false;
             circulo.length = 0;
             triangulo.length = 0;
             cubo.length = 0;
@@ -195,7 +266,7 @@
         }
         function drawConnectedPoint(from, to)
         {
-            _g.stroke();
+            //_g.stroke();
             _g.beginPath();
             _g.moveTo(_points[from].X, _points[from].Y);
             _g.lineTo(_points[to].X, _points[to].Y);
@@ -246,6 +317,9 @@
 
 /* ----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+var SELECTED;
 
 
 
@@ -255,6 +329,7 @@ var renderer;
 var Top, Group;
 var shininess = 50, specular = 0x333333, bumpScale = 1, shading = THREE.SmoothShading;
 var controls;
+var objeto;
 
 
 
@@ -263,9 +338,9 @@ animate();
 
 function init(){
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(50, (window.innerWidth*0.70) / (window.innerHeight*0.99), 1, 10000); // PerspectiveCamera(fov, aspect, near, far)
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth*0.70 / window.innerHeight*0.99, 1, 10000); // PerspectiveCamera(fov, aspect, near, far)
     scene.add( camera );
-    camera.position.set(0, 0, 100);
+    camera.position.set(5, 5, 200);
 
     addHtml();
     addElements();
@@ -326,10 +401,10 @@ function addElements(){
         opciones.removeChild(opciones.firstChild);
     }
     opciones.appendChild(containerOpciones);
+
+    addArrowAxis();
     
     if (b_circulo){
-
-        b_circulo = false;
         material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xff3300, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
         
         var info = document.createElement('img');
@@ -339,7 +414,7 @@ function addElements(){
         opciones.replaceChild(info,containerOpciones);
         
         info = document.createElement('img');
-        source = 'piramide_cilindrica.png';
+        source = 'piramide_cilindrica_red.png';
         addImgOpciones(info,source);
         opciones.appendChild(info);
         
@@ -354,16 +429,19 @@ function addElements(){
         opciones.appendChild(info);
     }
     if (b_triangulo){
-        b_triangulo = false;
         material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x33ff33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
         var source = 'piramide.png';
         addImgOpciones(info,source);
         containerOpciones = document.getElementById('containerOpciones');
         document.getElementById("opciones").replaceChild(info,containerOpciones);
+
+        info = document.createElement('img');
+        source = 'piramide_cilindrica.png';
+        addImgOpciones(info,source);
+        opciones.appendChild(info);
     }
     if (b_rectangulo){
-        b_rectangulo = false;
         material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xbbbb33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
         var source = 'cubo.png';
@@ -372,7 +450,7 @@ function addElements(){
         document.getElementById("opciones").replaceChild(info,containerOpciones);
         
         info = document.createElement('img');
-        source = 'octaedro.png';
+        source = 'octaedro_cafe.png';
         addImgOpciones(info,source);
         opciones.appendChild(info);
     }
@@ -380,58 +458,75 @@ function addElements(){
 
 }
 
-
+function addArrowAxis() {
+    var axis = new THREE.AxisHelper( 10000 );
+    axis.position.set( 0, 0, 0 );
+    scene.add( axis );
+}
 function dibujarEsfera(){
-    sphere = new THREE.Mesh(new THREE.SphereGeometry( 17, 32, 32), material);
-    sphere.position.set(-25,34,-20);
-    scene.add(sphere);
+    objeto = new THREE.Mesh(new THREE.SphereGeometry( 17, 32, 32), material);
+    objeto.position.set(-25,34,-20);
+    lista.push(objeto);
+    scene.add(objeto);
 }
 
 function dibujarPiramide(){
-    piramide = new THREE.Mesh(new THREE.TetrahedronGeometry(25,0),material);
-    piramide.rotation.z = Math.PI/180 * 45;
-    piramide.rotation.x = Math.PI/180 * -35;
-    piramide.position.set(0,0,10);
-    scene.add(piramide);
+    objeto = new THREE.Mesh(new THREE.TetrahedronGeometry(25,0),material);
+    objeto.rotation.z = Math.PI/180 * 45;
+    objeto.rotation.x = Math.PI/180 * -35;
+    objeto.position.set(0,0,10);
+    lista.push(objeto);
+    scene.add(objeto);
 }
 
 function dibujarPiramideCilindrica(){
     
-    var piramideCilindrica = new THREE.Mesh( new THREE.CylinderGeometry( 0, 10, 30, 50 ), material );
-    scene.add( piramideCilindrica );
+    objeto = new THREE.Mesh( new THREE.CylinderGeometry( 0, 10, 30, 50 ), material );
+    lista.push(objeto);
+    scene.add( objeto );
 }
 
 function dibujarCubo(){
-    cube = new THREE.Mesh(new THREE.BoxGeometry(25,25,25),material);
-    cube.position.set(30,28,-25);
-    scene.add(cube);
+    objeto = new THREE.Mesh(new THREE.BoxGeometry(25,25,25),material);
+    objeto.position.set(30,28,-25);
+    lista.push(objeto);
+    scene.add(objeto);
 }
 
 function dibujarOctaedro(){
     
     var geometry = new THREE.OctahedronGeometry( 40, 0 );
-    var octaedro = new THREE.Mesh( geometry, material );
-    scene.add( octaedro );
+    objeto = new THREE.Mesh( geometry, material );
+    lista.push(objeto);
+    scene.add( objeto );
 }
 
 function dibujarCilindro(){
     
     var geometry = new THREE.CylinderGeometry( 10, 10, 30, 50 );
-    var cylinder = new THREE.Mesh( geometry, material );
-    scene.add( cylinder );
+    objeto = new THREE.Mesh( geometry, material );
+    lista.push(objeto);
+    scene.add( objeto );
 }
 
 function dibujarTorus() {
-    	var darkMaterial = new THREE.MeshBasicMaterial( { color: 0xffffcc } );
-	var wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ); 
-	var multiMaterial = [ darkMaterial, wireframeMaterial ]; 
-    	var torus = THREE.SceneUtils.createMultiMaterialObject( 
-	    // radius of entire torus, diameter of tube (less than total radius), 
-		// sides per cylinder segment, cylinders around torus ("sides")
-		new THREE.TorusGeometry( 30, 20, 16, 40 ),
-		multiMaterial );
-	torus.position.set(10, 10, -50);
-	scene.add( torus );
+
+    var geometry = new THREE.TorusGeometry( 10, 3, 16, 100 );
+    objeto = new THREE.Mesh( geometry, material );
+    lista.push(objeto);
+    scene.add( objeto );
+}
+
+function rotarObjeto () {
+    var delta = clock.getDelta(); // seconds.
+    var moveDistance = 200 * delta; // 200 pixels per second
+    var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
+    var vectorRotacion = camera.lookAt;
+
+    if (rotar) {
+        objeto.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
+    }
+    
 }
 
 function addImgOpciones(nodo,file) {
@@ -447,7 +542,7 @@ function addImgOpciones(nodo,file) {
         if (nombreFile == 'esfera'){
             dibujarEsfera();
         }
-        if (nombreFile == 'piramide_cilindrica'){
+        if (nombreFile == 'piramide_cilindrica' || nombreFile == 'piramide_cilindrica_red'){
             dibujarPiramideCilindrica();
         }
         if (nombreFile == 'cubo'){
@@ -456,7 +551,7 @@ function addImgOpciones(nodo,file) {
         if (nombreFile == 'piramide'){
             dibujarPiramide();
         }
-        if (nombreFile == 'octaedro'){
+        if (nombreFile == 'octaedro' || nombreFile == 'octaedro_cafe'){
             dibujarOctaedro();
         }
         if (nombreFile == 'cilindro'){
@@ -497,6 +592,25 @@ function addHtml(){
     container.appendChild(info);
 }
 
+function miMouseDown(x, y) {
+
+    mouse.x = ( x / (window.innerWidth) ) * 2 - 1;
+    mouse.y = - ( y / (window.innerHeight) ) * 2 + 1;     
+    raycaster.setFromCamera( mouse, camera );
+        var intersects = raycaster.intersectObjects( scene );
+        if ( intersects.length > 0 ) {
+            SELECTED = intersects[ 0 ].object;
+
+            SELECTED.material.color.set(0xff0000);
+
+            // var intersects = raycaster.intersectObject( plane );
+            // if ( intersects.length > 0 ) {
+            //     offset.copy( intersects[ 0 ].point ).sub( plane.position );
+            // }
+            container.style.cursor = 'move';
+        }
+}
+
 function onWindowResize() {
 
     // Update aspect ratio
@@ -512,6 +626,7 @@ function onWindowResize() {
 function animate() {
    requestAnimationFrame(animate);
    render();
+   rotarObjeto();
 }
 
 function render() {
@@ -524,5 +639,18 @@ function renderCam() {
 
     var res;
     res = parseInt( document.getElementById('resultado').value  );
+
+    // update the picking ray with the camera and mouse position    
+    raycaster.setFromCamera( mouse, camera );   
+
+    // calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects( scene.children );
+
+    for ( var i = 0; i < intersects.length; i++ ) {
+
+        //intersects[ i ].object.material.color.set( 0x00ff00 );
+    
+    }
+    
     renderer.render( scene,  camera );
 }
