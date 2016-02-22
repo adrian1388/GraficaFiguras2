@@ -71,3 +71,16 @@
         visibility: hidden;
         position: absolute;
     }
+#clr{
+    cursor:pointer;
+    z-index: 2000;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+}
+
+#clr div{
+    cursor:pointer;
+    width:20px;
+    height:12.5px;
+}

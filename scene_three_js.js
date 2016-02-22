@@ -1,11 +1,14 @@
         //
         // Startup
         //
+        var ESCALARMOVIMIENTO = 0.1;
+
         var _isDown, _points, _r, _g, _rc;
         var b_circulo = false;
         var b_triangulo = false;
         var b_rectangulo = false;
         var rotar = false, trasladar = false, escalar = false;
+        var masGrande = false, ptoCentroide = false;
         var objetoDibujado;
         var lista = new Array();
         var circulo,triangulo,cubo,brazoDer,piernaIzq,piernaDer;
@@ -13,7 +16,14 @@
         var puntoTraslado, puntoEscalado;
         var i = 0;
         var clock = new THREE.Clock();
+        var collidableMeshList = [];
+        var colorSelected;
         
+
+                // if ( objetoDibujado.length > 1 ) {
+                //     drawConnectedPoint(_points.length - 2, _points.length - 1);
+                // }
+
         function getCanvasRect(canvas)
         {
             var w = canvas.width;
@@ -94,9 +104,16 @@
                         i++;
                     }while( escalar == false && i < cubo.length );
                 }
+
+                var dist = Distance( puntoTraslado, centroide );
+                if ( dist < 20 ) {
+                    ptoCentroide = true;
+                } else {
+                    ptoCentroide = false;
+                }
             };
 
-            if (_points.length > 0 && rotar)
+            if (_points.length > 0 && rotar )
                 onClickLimpiar();
             //  _g.clearRect(0, 0, _rc.width, _rc.height);
             
@@ -117,36 +134,40 @@
                 x -= _rc.x;
                 y -= _rc.y - getScrollY();
 
-                if ( b_circulo || b_triangulo || b_rectangulo ) {
-                    if (Distance(puntoTraslado,centroide) < 20) {
-                        trasladar = true;
-                        if ( centroide.X < x ) {
-                            moveObjetoX = 0.5;
-                        } else {
-                            moveObjetoX = -0.5;
-                        }
-                        if ( centroide.Y < y ) {
-                            moveObjetoY = 0.5;
-                        } else {
-                            moveObjetoY = -0.5;
-                        }
-                    };
-                    if (escalar) {
-                        if ( puntoEscalado.X < x ) {
-                            scaleObjetoX = scaleObjetoX + 0.5;
-                        } else {
-                            scaleObjetoX = scaleObjetoX - 0.5;
-                        }
-                        if ( centroide.Y < y ) {
-                            scaleObjetoY = scaleObjetoY + 0.5;
-                        } else {
-                            scaleObjetoY = scaleObjetoY - 0.5;
-                        }
-                    };
-                };
+                // if ( b_circulo || b_triangulo || b_rectangulo ) {
+                //     if (Distance(puntoTraslado,centroide) < 20) {
+                //         trasladar = true;
+                //         if ( centroide.X + 5 < x ) {
+                //             moveObjetoX = ESCALARMOVIMIENTO;
+                //         } else if ( centroide.X - 5 > x ) {
+                //             moveObjetoX = -ESCALARMOVIMIENTO;
+                //         } else if ( ( centroide.X - 5 < x ) && ( centroide.X + 5 > x ) ) {
+                //             moveObjetoX = 0;
+                //         }
+                //         if ( centroide.Y - 5 > y ) {
+                //             moveObjetoY = ESCALARMOVIMIENTO;
+                //         } else if ( centroide.Y + 5 < y ) {
+                //             moveObjetoY = - ESCALARMOVIMIENTO;
+                //         } else if ( ( centroide.Y - 5 < y ) && ( centroide.Y + 5 > y ) ) {
+                //             moveObjetoY = 0;
+                //         }
+                //     };
+                    // if (escalar) {
+                    //     if ( puntoEscalado.X < x ) {
+                    //         scaleObjetoX = 1;
+                    //     } else if ( puntoEscalado.X > x ) {
+                    //         scaleObjetoX = -1;
+                    //     }
+                    //     if ( puntoEscalado.Y > y ) {
+                    //         scaleObjetoY = 1;
+                    //     } else if ( puntoEscalado.Y < y ) {
+                    //         scaleObjetoY = -1;
+                    //     }
+                    // };
+                // };
 
                 _points[_points.length] = new Point(x, y); // append
-                coloRear("rgb(0,0,2)",3);
+                coloRear(colorSelected,3);
                 
                     drawConnectedPoint(_points.length - 2, _points.length - 1);
                 //document.getElementById('objetoDibujado').value = document.getElementById('objetoDibujado').value + " - " + x + ", " + y;
@@ -176,11 +197,11 @@
                         moveObjetoY = 0;
                     };
                 };
-                if (escalar) {
-                        escalar = false;
-                        scaleObjetoX = 0;
-                        scaleObjetoY = 0;
-                    };
+                // if (escalar) {
+                //         escalar = false;
+                //         scaleObjetoX = 0;
+                //         scaleObjetoY = 0;
+                //     };
                 if (_points.length >= 10)
                 {
                     var result = _r.Recognize(_points, document.getElementById('useProtractor').checked);
@@ -195,8 +216,9 @@
                                 circulo[i] = objetoDibujado[i];
                             }
                             centroide = Centroid(circulo);
-                            coloRear("rgb(255,0,0)",3);
-                            for ( i = 0; i < circulo.length; i++) {
+                            drawPoint(centroide.X,centroide.Y);
+                            coloRear(colorSelected,3);
+                            for ( i = 0; i < circulo.length - 2; i++) {
                                 drawTrazo(i, i+1);
                             }
                             
@@ -210,8 +232,9 @@
                                 triangulo[i] = objetoDibujado[i];
                             }
                             centroide = Centroid(triangulo);
-                            coloRear("rgb(0,150,0)",3);
-                            for ( i = 0; i < triangulo.length; i++) {
+                            drawPoint(centroide.X,centroide.Y);
+                            coloRear(colorSelected,3);
+                            for ( i = 0; i < triangulo.length - 2; i++) {
                                 drawTrazo(i, i+1);
                             }
                             
@@ -225,19 +248,21 @@
                                 cubo[i] = objetoDibujado[i];
                             }
                             centroide = Centroid(cubo);
-                            coloRear("rgb(150,150,20)",3);
-                            for ( i = 0; i < cubo.length; i++) {
+                            drawPoint(centroide.X,centroide.Y);
+                            coloRear(colorSelected,3);
+                            for ( i = 0; i < cubo.length - 2; i++) {
                                 drawTrazo(i, i+1);
                             }
                             
                         
-                        } else if (( b_circulo || b_triangulo || b_rectangulo ) && result.Name == "rotar") {
+                        } else if (( b_circulo || b_triangulo || b_rectangulo ) && result.Name == "rotar" && result.Score > 4.0) {
                             if (b_circulo){
                                 i=0;
                                 do{
                                     var dist = Distance( objetoDibujado[0], circulo[i] );
                                     if( dist < 20 ){
                                         rotar = true;
+                                        drawText("Haz clic para detener.");
                                     }else{
                                         rotar = false;
                                     }
@@ -270,18 +295,86 @@
                             }
                             if (rotar) {
                                 coloRear("rgb(100,190,150)",3);
-                                for ( i = 0; i < objetoDibujado.length; i++) {
+                                for ( i = 0; i < objetoDibujado.length - 2; i++) {
                                     drawTrazo(i, i+1);
                                 }
                             }
                             
                         
-                        }else if (result.Name == "borrar"){
+                        } else if (( b_circulo || b_triangulo || b_rectangulo ) && result.Name == "flecha" ) {
+
+                            //escalar
+                            
+                            if (escalar) {
+                                var ultX = objetoDibujado[5].X;
+                                var ultY = objetoDibujado[5].Y;
+                                var distPtoEsc = Distance( centroide, puntoEscalado );
+                                var distUlt    = Distance( centroide, new Point(ultX,ultY) );
+                                
+                                if ( distPtoEsc < distUlt ) {
+                                    masGrande = true;
+                                    scaleObjetoX = 1;
+                                    scaleObjetoY = 1;
+                                } else if ( distPtoEsc > distUlt ) {
+                                    masGrande = true;
+                                    scaleObjetoX = -1;
+                                    scaleObjetoY = -1;
+                                }
+
+                                if (b_circulo)  mifuncion(objetoDibujado,circulo);
+                                if (b_triangulo)  mifuncion(objetoDibujado,triangulo);
+                                if (b_rectangulo)  mifuncion(objetoDibujado,cubo);
+
+                                drawText("Haz clic para detener.");
+                                
+                            }
+
+                            //trasladar
+
+                            if (ptoCentroide) {
+
+                                var ultX = objetoDibujado[3].X;
+                                var ultY = objetoDibujado[3].Y;
+                                
+                                if ( centroide.X < ultX ) {
+                                    trasladar = true;
+                                    moveObjetoX = ESCALARMOVIMIENTO;
+                                } else if ( centroide.X > ultX ) {
+                                    trasladar = true;
+                                    moveObjetoX = -ESCALARMOVIMIENTO;
+                                } else if ( ( centroide.X - 10 < ultX ) && ( centroide.X + 10 > ultX ) ) {
+                                    trasladar = false;
+                                    moveObjetoX = 0;
+                                    moveObjetoY = 0;
+                                }
+
+                                if ( centroide.Y > ultY ) {
+                                    trasladar = true;
+                                    moveObjetoY = ESCALARMOVIMIENTO;
+                                } else if ( centroide.Y < ultY ) {
+                                    trasladar = true;
+                                    moveObjetoY = - ESCALARMOVIMIENTO;
+                                } else if ( ( centroide.Y - 10 < ultY ) && ( centroide.Y + 10 > ultY ) ) {
+                                    trasladar = false;
+                                    moveObjetoX = 0;
+                                    moveObjetoY = 0;
+                                }
+
+                                if (b_circulo)  mifuncion(objetoDibujado,circulo);
+                                if (b_triangulo)  mifuncion(objetoDibujado,triangulo);
+                                if (b_rectangulo)  mifuncion(objetoDibujado,cubo);
+
+                                drawText("Haz clic para detener.");
+
+                            }
+                            
+                        } else if (result.Name == "borrar"){
                             //borrar objeto de la escena 3js
                             if (lista.length > 0) {
                                 scene.remove( lista[lista.length-1] );
                                 lista[lista.length-1] = null;
                                 lista.length = lista.length - 1;
+                                objeto = lista[lista.length - 1];
                             }
                             
                             onClickLimpiar();
@@ -296,7 +389,7 @@
                         drawText("Result: Trazo no reconocido. ¡Inténtalo de nuevo!");
 
                         coloRear("#dddddd",5);
-                        for ( i = 0; i < objetoDibujado.length; i++) {
+                        for ( i = 0; i < objetoDibujado.length - 2; i++) {
                             drawTrazo(i, i+1);
                         }
 
@@ -307,15 +400,46 @@
                 }
                 else // fewer than 10 points were inputted
                 {
+                    if ( masGrande ) {
+                        masGrande = false;
+                        scaleObjetoX = 0;
+                        scaleObjetoY = 0;
+                    }
                     drawText("Too few points made. Please try again.");
                     coloRear("#dddddd",5);
-                    for ( i = 0; i < objetoDibujado.length; i++) {
+                    for ( i = 0; i < objetoDibujado.length - 2; i++) {
                         drawTrazo(i, i+1);
                     }
+
+                    
                 }
             }
         }
         /* Gráficos: HM-ini */
+        function mifuncion(objetodibujado,objetoReal) {
+            drawText("Haz clic para detener.");
+            _g.clearRect(0, 0, _rc.width, _rc.height);
+
+            coloRear("rgb(100,190,150)",3);
+            for ( i = 0; i < objetodibujado.length - 2; i++) {
+                drawTrazo(i, i+1);
+            }
+            for ( i = 0; i < objetoReal.length; i++) {
+                objetodibujado[i] = objetoReal[i];
+            }
+            coloRear(colorSelected,3);
+            for ( i = 0; i < objetoReal.length - 2; i++) {
+                drawTrazo(i, i+1);
+            }
+        }
+        function cambiarColorDibujo( color ){
+
+        }
+        function drawPoint(x, y){
+            _g.beginPath();
+            _g.arc(x, y, 1, 0, 2 * Math.PI, true);
+            _g.stroke();
+        }
         function drawTrazo(desde, hasta)
         {
             //_g.stroke();
@@ -428,7 +552,7 @@ function init(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(50, window.innerWidth*0.70 / window.innerHeight*0.99, 1, 10000); // PerspectiveCamera(fov, aspect, near, far)
     scene.add( camera );
-    camera.position.set(5, 5, 200);
+    camera.position.set(10, 50, 150);
 
     addHtml();
     addElements();
@@ -445,11 +569,11 @@ function init(){
     // Add Orbit controls
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.target = new THREE.Vector3(0, 0, 0);
-	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
-	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
-	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-	scene.add(skyBox);
-	//scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
+    var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+    var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+    var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+    scene.add(skyBox);
+    //scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );
 
     /* --------------------------------------------------------------------*/
 
@@ -477,6 +601,9 @@ function init(){
             _g.fillRect(0, 0, _rc.width, 20);
 
             _isDown = false;
+                $("#clr > div").click(function(){
+                    colorSelected=$(this).css("background-color");
+                });
 
 }
 
@@ -493,7 +620,7 @@ function addElements(){
     addArrowAxis();
     
     if (b_circulo){
-        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xff3300, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xff3300, specular: 0xffffff, shininess: 50, metal: true, shading: shading } );
         
         var info = document.createElement('img');
         var source = 'esfera.png';
@@ -517,7 +644,7 @@ function addElements(){
         opciones.appendChild(info);
     }
     if (b_triangulo){
-        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x33ff33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x33ff33, specular: 0xffffff, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
         var source = 'piramide.png';
         addImgOpciones(info,source);
@@ -530,7 +657,7 @@ function addElements(){
         opciones.appendChild(info);
     }
     if (b_rectangulo){
-        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xbbbb33, specular: 0xffaa00, shininess: 50, metal: true, shading: shading } );
+        material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0xbbbb33, specular: 0xffffff, shininess: 50, metal: true, shading: shading } );
         var info = document.createElement('img');
         var source = 'cubo.png';
         addImgOpciones(info,source);
@@ -550,64 +677,77 @@ function addArrowAxis() {
     var axis = new THREE.AxisHelper( 10000 );
     axis.position.set( 0, 0, 0 );
     scene.add( axis );
+
+    //PISO
+    material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: 0x555555, specular: 0xffffff, shininess: 50, metal: true, shading: shading } );
+    var floor = new THREE.Mesh(new THREE.PlaneGeometry(1000,1000,50,50),material);
+    scene.add( floor );
+    floor.rotateOnAxis( new THREE.Vector3(1,0,0), (Math.PI / 2)*3 );
 }
 function dibujarEsfera(){
-    objeto = new THREE.Mesh(new THREE.SphereGeometry( 17, 32, 32), material);
-    objeto.position.set(-25,34,-20);
+    objeto = new THREE.Mesh(new THREE.SphereGeometry( 20, 32, 32), material);
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add(objeto);
+    collidableMeshList.push(objeto);
 }
 
 function dibujarPiramide(){
-    objeto = new THREE.Mesh(new THREE.TetrahedronGeometry(25,0),material);
-    objeto.rotation.z = Math.PI/180 * 45;
-    objeto.rotation.x = Math.PI/180 * -35;
-    objeto.position.set(0,0,10);
+    objeto = new THREE.Mesh(new THREE.TetrahedronGeometry(40,0),material);
+    // objeto.rotation.z = Math.PI/180 * 45;
+    // objeto.rotation.x = Math.PI/180 * -35;
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add(objeto);
+    collidableMeshList.push(objeto);
 }
 
 function dibujarPiramideCilindrica(){
     
-    objeto = new THREE.Mesh( new THREE.CylinderGeometry( 0, 10, 30, 50 ), material );
+    objeto = new THREE.Mesh( new THREE.CylinderGeometry( 0, 20, 40, 100 ), material );
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add( objeto );
+    collidableMeshList.push(objeto);
 }
 
 function dibujarCubo(){
-    objeto = new THREE.Mesh(new THREE.BoxGeometry(25,25,25),material);
-    objeto.position.set(30,28,-25);
+    objeto = new THREE.Mesh(new THREE.BoxGeometry(40,40,40),material);
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add(objeto);
+    collidableMeshList.push(objeto);
 }
 
 function dibujarOctaedro(){
-    
-    var geometry = new THREE.OctahedronGeometry( 40, 0 );
+    var geometry = new THREE.OctahedronGeometry( 20, 0 );
     objeto = new THREE.Mesh( geometry, material );
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add( objeto );
+    collidableMeshList.push(objeto);
 }
 
 function dibujarCilindro(){
-    
-    var geometry = new THREE.CylinderGeometry( 10, 10, 30, 50 );
+    var geometry = new THREE.CylinderGeometry( 20, 20, 40, 100 );
     objeto = new THREE.Mesh( geometry, material );
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add( objeto );
+    collidableMeshList.push(objeto);
 }
 
 function dibujarTorus() {
-
-    var geometry = new THREE.TorusGeometry( 10, 3, 16, 100 );
+    var geometry = new THREE.TorusGeometry( 16, 4, 15, 100 );
     objeto = new THREE.Mesh( geometry, material );
+    objeto.position.set(0,20,0);
     lista.push(objeto);
     scene.add( objeto );
+    collidableMeshList.push(objeto);
 }
 
 function rotarObjeto () {
     var delta = clock.getDelta(); // seconds.
-    var moveDistance = 200 * delta; // 200 pixels per second
     var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
     var vectorRotacion = camera.lookAt;
 
@@ -625,11 +765,17 @@ function trasladarObjeto () {
 }
 
 function escalarObjeto () {
+    var delta = 0.01;
+    var moveDistance = 10000 * delta; // 200 pixels per second
 
-    if (escalar) {
-        objeto.scale.x = scaleObjetoX;
-        objeto.scale.y = scaleObjetoY;
+    if (masGrande) {
+        objeto.scale.x = objeto.scale.x + delta*scaleObjetoX;
+        objeto.scale.y = objeto.scale.y + delta*scaleObjetoY;
     }
+}
+
+function cambiarMaterial () {
+    material = new THREE.MeshPhongMaterial({ bumpScale: 1, color: colorSelected, specular: 0xffffff, shininess: 50, metal: true, shading: shading } );
 }
 
 function addImgOpciones(nodo,file) {
@@ -671,11 +817,11 @@ function addLights(){
     // Setup the point lighting ion the middle of the roonm
     var pointLight = new THREE.PointLight(0xffffff, 1, 150);
     pointLight.position.set(0, 70, 70);
-    scene.add(pointLight);
+    //scene.add(pointLight);
     //scene.add(new THREE.PointLightHelper(bluePoint, 3));
 
     // Setup ambient lighting for the room
-    var hemLight = new THREE.HemisphereLight(0xffe5bb, 0xFFBF00, .40);
+    var hemLight = new THREE.HemisphereLight(0xFFFFFF, 0xffffff, .40);
     scene.add(hemLight);
 
 }
@@ -732,6 +878,7 @@ function animate() {
    rotarObjeto();
    trasladarObjeto();
    escalarObjeto();
+   cambiarMaterial();
 }
 
 function render() {
@@ -745,17 +892,12 @@ function renderCam() {
     var res;
     res = parseInt( document.getElementById('resultado').value  );
 
-    // update the picking ray with the camera and mouse position    
-    raycaster.setFromCamera( mouse, camera );   
+  
 
-    // calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObjects( scene.children );
 
-    for ( var i = 0; i < intersects.length; i++ ) {
-
-        //intersects[ i ].object.material.color.set( 0x00ff00 );
     
-    }
     
     renderer.render( scene,  camera );
 }
+
+

@@ -105,13 +105,19 @@
 
 </head>
 
-<body>
+<body onload="onLoadEvent();">
     <div id="resultado">
         
     </div>
 
     <div id="dibujo">
-        <canvas id="canvas"></canvas>
+        <canvas id="canvas" style="background-color:#dddddd"
+                onmousedown="mouseDownEvent(event.clientX, event.clientY)"
+                onmousemove="mouseMoveEvent(event.clientX, event.clientY)"
+                onmouseup="mouseUpEvent(event.clientX, event.clientY)"
+                oncontextmenu="return false;">
+            <span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
+        </canvas>
     
 
         <div id="toolbar">

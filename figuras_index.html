@@ -20,7 +20,7 @@
 
 
 	<script type="text/javascript" src="scene_three_js.js"></script> 
-
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 
 </head>
@@ -44,14 +44,41 @@
 			</div>
 			<div valign="top" align="left">
 				
-				<canvas id="myCanvas" width="800" height="500" style="background-color:#dddddd"
+				<canvas id="myCanvas" width="800" height="500" style="background-color:#dadadc"
 						onmousedown="mouseDownEvent(event.clientX, event.clientY);"
 						onmousemove="mouseMoveEvent(event.clientX, event.clientY)"
 						onmouseup="mouseUpEvent(event.clientX, event.clientY)"
 						oncontextmenu="return false;">
 					<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
 				</canvas>
-
+				<div id="clr" onmousedown="controls.enabled = false; // disable controls"
+						onmouseup="controls.enabled = true; // enable controls">
+			        <div style="background-color:	#e60000	;"></div>
+					<div style="background-color:	#e63900	;"></div>
+					<div style="background-color:	#e67300	;"></div>
+					<div style="background-color:	#e6ac00	;"></div>
+					<div style="background-color:	#e6e600	;"></div>
+					<div style="background-color:	#ace600	;"></div>
+					<div style="background-color:	#73e600	;"></div>
+					<div style="background-color:	#39e600	;"></div>
+					<div style="background-color:	#00e600	;"></div>
+					<div style="background-color:	#00e639	;"></div>
+					<div style="background-color:	#00e673	;"></div>
+					<div style="background-color:	#00e6ac	;"></div>
+					<div style="background-color:	#00e6e6	;"></div>
+					<div style="background-color:	#00ace6	;"></div>
+					<div style="background-color:	#0073e6	;"></div>
+					<div style="background-color:	#0039e6	;"></div>
+					<div style="background-color:	#0000e6	;"></div>
+					<div style="background-color:	#3900e6	;"></div>
+					<div style="background-color:	#7300e6	;"></div>
+					<div style="background-color:	#ac00e6	;"></div>
+					<div style="background-color:	#e600e6	;"></div>
+					<div style="background-color:	#e600ac	;"></div>
+					<div style="background-color:	#e60073	;"></div>
+					<div style="background-color:	#e60039	;"></div>
+					<div style="background-color:	#e60000	;"></div>
+			    </div>
 			</div>
 		</div>
 
