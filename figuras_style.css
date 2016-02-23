@@ -3,35 +3,17 @@
         margin: 0px;
         border: 0px;
     }
+    div {
+        border-radius: 1em;
+
+    }
     #canvas {
         margin: 0px;
     }
-    #toolbar {
-        padding:10px;
-        font-size:24px;
-        line-height: 30px;
-        /*background: #ffffff;
-        opacity: 0.9;*/
-        background-color: rgba(0,255,255,0.2);
-        border: 1px solid #000000;
-        position: absolute;
-        top:2px;
-        right:2px;
-    }
-    #toolbar button {
-        display: block;
-        font-size:14px;
-        /*padding: 5px 5px;
-        margin:10px 5px;*/
-    }
-    #toolbar button:hover {
-        color:#ff0000;
-    }
-    #toolbar button:active {
-        color:#ff0000;
-    }
+
+
     #resultado {
-        border: 1px solid #000000;
+        border: 1px solid #4488CC;
         position: absolute;
         top:2px;
         left:2px;
@@ -39,7 +21,7 @@
         height: 99%;
     }
     #dibujo {
-        border: 1px solid #000000;
+        border: 1px solid #4488CC;
         position: absolute;
         top:2px;
         right:2px;
@@ -47,7 +29,7 @@
         height: 49%;
     }
     #opciones {
-        border: 1px solid #000000;
+        border: 1px solid #4488CC;
         position: absolute;
         bottom:3px;
         right:2px;
@@ -73,7 +55,7 @@
     }
 #clr{
     cursor:pointer;
-    z-index: 2000;
+    z-index: 1000;
     position: absolute;
     top: 1px;
     right: 1px;
@@ -83,4 +65,65 @@
     cursor:pointer;
     width:20px;
     height:12.5px;
+}
+
+#containerSuper {
+    z-index: 2000;
+    position: relative;
+    margin: 0 auto;
+    padding: 5px;
+    border: 2px double #48c;
+    width: 35%;
+    top: 5em;
+    text-align: center;
+}
+
+#containerSuper > h1 {
+    color: #0039E6;
+}
+#containerSuper > p {
+    font-family: "Arial";
+}
+#containerSuper > button {
+    border: solid 1px #0039E6;
+    color: #0039E6;
+    background-color: #E6AC00;
+    border-radius: 5em;
+    width: 5em;
+    height: 2em;
+    font-family: "Arial", Times, serif;
+    font-weight: bold;
+}
+
+#infobutton {
+    z-index: 2000;
+    position: absolute;
+    padding: 5px;
+    border: 2px double #48c;
+    top: 3px;
+    left: 3px;
+    text-align: center;
+    width: 2em;
+    cursor: pointer;
+    font-family: "Times New Roman", Times, serif;
+    font-style: italic;
+    font-size: larger;
+    font-weight: bold;
+    background: #48C;
+}
+#downloadScene {
+    z-index: 2000;
+    position: absolute;
+    padding: 5px;
+    border: 2px double #48c;
+    top: 3px;
+    left: 3em;
+    text-align: center;
+    width: 2em;
+    cursor: pointer;
+    font-family: "Times New Roman", Times, serif;
+    font-style: italic;
+    font-size: larger;
+    font-weight: bold;
+    background: #48C;
 }

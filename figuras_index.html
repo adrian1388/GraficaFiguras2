@@ -20,12 +20,27 @@
 
 
 	<script type="text/javascript" src="scene_three_js.js"></script> 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript" src="jquery.js"></script> 
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 
 
 </head>
-<body >
-	
+<body>
+	<div id="containerSuper" onmousedown="controls.enabled = false; // disable controls"
+							onmouseup="controls.enabled = true; // enable controls">
+		<h1>¡Bienvenido a Magic Geometry!</h1>
+		<p>Realiza un trazo --> y ¡a divertirse!...</p>
+		<button onclick="document.getElementById('containerSuper').style.display = 'none';
+						document.getElementById('infobutton').style.display = 'block';
+						document.getElementById('downloadScene').style.display = 'block';">OK</button>
+	</div>
+	<div id="infobutton" onmousedown="controls.enabled = false; // disable controls"
+						onmouseup="controls.enabled = true; // enable controls"
+						onclick="document.getElementById('infobutton').style.display = 'none';
+						document.getElementById('containerSuper').style.display = 'block';">i</div>
+	<div id="downloadScene" onmousedown="controls.enabled = false; // disable controls"
+						onmouseup="controls.enabled = true; // enable controls"
+						onclick="copyCanvas();">d</div>
 	<div id="Content" class="container">
 		<div id="resultado" onmousedown=" miMouseDown(event.clientX, event.clientY);">
         
