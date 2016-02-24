@@ -540,7 +540,7 @@ function init(){
     // Add Orbit controls
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.target = new THREE.Vector3(0, 0, 0);
-    var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+    var skyBoxGeometry = new THREE.BoxGeometry( 10000, 10000, 10000 );
     var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
     var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
     scene.add(skyBox);
@@ -830,20 +830,32 @@ function addHtml(){
 
 function miMouseDown(x, y) {
 
-    mouse.x = ( x / (window.innerWidth) ) * 2 - 1;
-    mouse.y = - ( y / (window.innerHeight) ) * 2 + 1;     
+    mouse.x = ( x / (window.innerWidth*0.70) ) * 2 - 1;
+    mouse.y = - ( y / (window.innerHeight*0.99) ) * 2 + 1;     
     raycaster.setFromCamera( mouse, camera );
-        var intersects = raycaster.intersectObjects( scene );
+        var intersects = raycaster.intersectObjects( scene.children );
         if ( intersects.length > 0 ) {
             SELECTED = intersects[ 0 ].object;
 
-            SELECTED.material.color.set(0xff0000);
+            // SELECTED.material.color.set(0xff0000);
 
-            // var intersects = raycaster.intersectObject( plane );
-            // if ( intersects.length > 0 ) {
-            //     offset.copy( intersects[ 0 ].point ).sub( plane.position );
-            // }
-            container.style.cursor = 'move';
+            i=0;
+            var bandera = false;
+            do{
+                if (lista[i] = SELECTED) {
+                    bandera = true;
+                    objeto = lista[i];
+                    for ( var j = i; j < lista.length - 1; j++) {
+                        lista[j] = lista[j + 1];
+                    }
+                }
+                i++;
+            }while( bandera == false && i < lista.length )
+
+            if (bandera) {
+                lista[lista.length-1] = objeto
+            }
+
         }
 }
 

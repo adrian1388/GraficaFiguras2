@@ -76,6 +76,7 @@
     width: 35%;
     top: 5em;
     text-align: center;
+    background: rgba(112, 184, 212, 0.44);
 }
 
 #containerSuper > h1 {
